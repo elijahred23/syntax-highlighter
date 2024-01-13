@@ -1,0 +1,11 @@
+.keyword {
+  color: blue;
+  font-weight: bold;
+}
+
+.editable-div {
+  /* Styles for your editable div */
+  border: 1px solid #ddd;
+  min-height: 100px;
+  padding: 8px;
+}
