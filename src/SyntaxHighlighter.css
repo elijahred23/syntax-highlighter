@@ -6,6 +6,10 @@
     color: yellow;
     font-weight: bold;
 }
+.number {
+    color: red; /* Example color for numbers */
+}
+
 
 .editable-div {
     /* Styles for your editable div */
