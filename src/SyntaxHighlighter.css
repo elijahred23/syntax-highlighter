@@ -2,6 +2,10 @@
     color: blue;
     font-weight: bold;
 }
+.quote{
+    color: yellow;
+    font-weight: bold;
+}
 
 .editable-div {
     /* Styles for your editable div */

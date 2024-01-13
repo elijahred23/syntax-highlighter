@@ -11,33 +11,37 @@ const SyntaxHighlighter = () => {
         setHtmlContent(highlightSyntax(rawText));
     };
     const highlightSyntax = (text) => {
-        // Replace this with your actual syntax highlighting logic
-      
-        const isUpperCase = text === text.toUpperCase(); // Check if the input text is in uppercase
-      
-        const words = text.split(' ');
-      
-        const highlightedWords = words.map((word, index) => {
-          const isKeyword = sqlKeywords.includes(word.toLowerCase());
-          const trimmedWord = word.trim(); // Trim any leading/trailing spaces
-          const isLastWord = index === words.length - 1; // Check if it's the last word
-      
-          // Check if it's the last word and has a space at the end
+      const isUpperCase = text === text.toUpperCase();
+  
+      // Regular expression to match single or double quoted text
+      const quoteRegex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+  
+      // Highlight text within quotes
+      const highlightedQuotes = text.replace(quoteRegex, `<span class="quote">$&</span>`);
+  
+      const words = highlightedQuotes.split(' ');
+  
+      const highlightedWords = words.map((word, index) => {
+          const isKeyword = sqlKeywords.includes(word.replace(/<[^>]+>/g, '').toLowerCase());
+          const trimmedWord = word.trim();
+          const isLastWord = index === words.length - 1;
+  
           if (isLastWord && word.endsWith(' ')) {
-            const highlighted = isKeyword
-              ? `<span class="keyword">${isUpperCase ? trimmedWord.toUpperCase() : trimmedWord}</span> `
-              : trimmedWord;
-            return highlighted;
+              const highlighted = isKeyword
+                  ? `<span class="keyword">${isUpperCase ? trimmedWord.toUpperCase() : trimmedWord}</span> `
+                  : trimmedWord;
+              return highlighted;
           } else {
-            const highlighted = isKeyword
-              ? `<span class="keyword">${isUpperCase ? word.toUpperCase() : word}</span>`
-              : word;
-            return highlighted;
+              const highlighted = isKeyword
+                  ? `<span class="keyword">${isUpperCase ? word.toUpperCase() : word}</span>`
+                  : word;
+              return highlighted;
           }
-        });
-      
-        return highlightedWords.join(' ');
-      };
+      });
+  
+      return highlightedWords.join(' ');
+  };
+  
       
       
 
