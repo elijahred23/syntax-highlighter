@@ -1,82 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import {sqlKeywords} from './ReservedWords.js';
-import './SyntaxHighlighter.css'; 
-const SyntaxHighlighter = () => {
-    const [htmlContent, setHtmlContent] = useState('');
-    const [sqlCode, setSQLCode] = useState('');
+import React, { useState, useRef, useEffect } from 'react';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import sql from 'react-syntax-highlighter/dist/esm/languages/hljs/sql';
+import { idea } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 
-    const handleInput = (e) => {
-        const rawText = e.currentTarget.textContent;
-        setSQLCode(rawText);
-        setHtmlContent(highlightSyntax(rawText));
-    };
-    const highlightSyntax = (text) => {
-      const isUpperCase = text === text.toUpperCase();
-  
-      // Regular expression to match single or double quoted text
-      const quoteRegex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
-  
-      // Regular expression to match numbers (integers and floating-point)
-      const numberRegex = /\b\d+(\.\d+)?\b/g;
-  
-      // Highlight text within quotes
-      const highlightedQuotes = text.replace(quoteRegex, `<span class="quote">$&</span>`);
-  
-      // Highlight numbers
-      const highlightedNumbers = highlightedQuotes.replace(numberRegex, `<span class="number">$&</span>`);
-  
-      const words = highlightedNumbers.split(' ');
-  
-      const highlightedWords = words.map((word, index) => {
-          const cleanWord = word.replace(/<[^>]+>/g, ''); // Remove HTML tags for keyword comparison
-          const isKeyword = sqlKeywords.includes(cleanWord.toLowerCase());
-          const trimmedWord = word.trim();
-          const isLastWord = index === words.length - 1;
-  
-          if (isLastWord && word.endsWith(' ')) {
-              const highlighted = isKeyword
-                  ? `<span class="keyword">${isUpperCase ? trimmedWord.toUpperCase() : trimmedWord}</span> `
-                  : trimmedWord;
-              return highlighted;
-          } else {
-              const highlighted = isKeyword
-                  ? `<span class="keyword">${isUpperCase ? word.toUpperCase() : word}</span>`
-                  : word;
-              return highlighted;
+SyntaxHighlighter.registerLanguage('sql', sql);
+
+const EditableSyntaxHighlighter = () => {
+  const [code, setCode] = useState(`select * from pov.master`);
+  const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef(null);
+
+  // Focus on the textarea when it's time to edit
+  useEffect(() => {
+    if (isEditing) {
+      textareaRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  return (
+    <>
+      <div
+        className="relative flex bg-[#282a36]"
+        tabIndex={0}
+        onClick={() => {
+          setIsEditing(true);
+        }}
+        onBlur={(event) => {
+          // Checking if the newly focused element is not the textarea
+          if (textareaRef.current && !textareaRef.current.contains(event.relatedTarget)) {
+            setIsEditing(false);
           }
-      });
-  
-      return highlightedWords.join(' ');
-  };
-  
-  
-      
-      
-
-    useEffect(() => {
-        // This is necessary to place the cursor at the end of the text after each update
-        const el = document.getElementById("editableDiv");
-        const range = document.createRange();
-        const sel = window.getSelection();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        el.focus();
-    }, [htmlContent]);
-
-    return (
-        <>
-            <div
-                id="editableDiv"
-                contentEditable
-                onInput={handleInput}
-                dangerouslySetInnerHTML={{ __html: htmlContent }}
-                className="editable-div"
-                style={{fontFamily:"monospace", fontSize: "2em"}}
-            />
-        </>
-    );
+        }}
+      >
+        {isEditing ? (
+          <textarea
+            className="absolute inset-0 resize-none bg-transparent p-2 font-mono caret-white outline-none z-10"
+            ref={textareaRef}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            style={{ color: 'white' }} // Explicitly setting text color
+            onFocus={() => setIsEditing(true)}
+            onBlur={() => setIsEditing(false)}
+          />
+        ) : null}
+        {!isEditing ? (
+          <SyntaxHighlighter
+            language="sql"
+            style={idea}
+            customStyle={{
+              flex: '1',
+              background: 'transparent',
+              minHeight: '100px',
+            }}
+          >
+            {code}
+          </SyntaxHighlighter>
+        ) : null}
+      </div>
+    </>
+  );
 };
 
-export default SyntaxHighlighter;
+export default EditableSyntaxHighlighter;

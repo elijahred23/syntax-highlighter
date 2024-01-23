@@ -1,13 +1,13 @@
 .keyword {
-    color: blue;
+    color:  #008f4b; 
     font-weight: bold;
 }
 .quote{
-    color: yellow;
+    color: #70d44b; 
     font-weight: bold;
 }
 .number {
-    color: red; /* Example color for numbers */
+    color: #ffc600; 
 }
 
 
